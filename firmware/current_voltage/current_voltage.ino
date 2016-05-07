@@ -6,9 +6,6 @@ Adafruit_INA219 ina219;
 // number of analog samples to take per reading
 #define NUM_SAMPLES 10
 
-// Measure current by default
-bool measureCurrent = false;
-
 int sum = 0;                    // sum of samples taken
 unsigned char sample_count = 0; // current sample number
 float voltage = 0.0;            // calculated voltage
@@ -21,7 +18,7 @@ void setup(void) {
 
   ina219.begin();
 
-  Serial.println("Measuring voltage and current with INA219 ...");
+  //Serial.println("Measuring voltage and current with INA219 ...");
 }
 
 void loop(void) {
