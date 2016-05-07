@@ -27,42 +27,49 @@ void setup(void) {
 void loop(void) {
 
   float current_mA = 0;
+  String input;
+  if (Serial.available()) {
+    //read in the input
+    while (Serial.available()) {
+      input += Serial.read();
+    }
 
-  // If we are measureing voltage...
-  if(!measureCurrent){
-  // take a number of analog samples of voltage and add them up
-    while (sample_count < NUM_SAMPLES) {
+    // If we are measureing voltage...
+    if (input == "voltage") {
+      // take a number of analog samples of voltage and add them up
+      while (sample_count < NUM_SAMPLES) {
         sum += analogRead(A2);
         sample_count++;
         delay(10);
+      }
+
+      // calculate the voltage
+      // use 5.0 for a 5.0V ADC reference voltage
+      // 5.015V is the calibrated reference voltage
+      voltage = ((float)sum / (float)NUM_SAMPLES * 5.015) / 1024.0;
+      // send voltage for display on Serial Monitor
+      // voltage multiplied by 11 when using voltage divider that
+      // divides by 11. 11.132 is the calibrated voltage divide
+      // value
+
+      Serial.print("Voltage:       ");
+      if (voltage == 0)
+        Serial.print(voltage / 0.9059 * 10);
+      else
+        //Serial.print(voltage * 11.132);
+        Serial.print(voltage / 0.9059 * 10 + 0.22);
+
+      Serial.println (" V");
+      sample_count = 0;
+      sum = 0;
     }
-    
-    // calculate the voltage
-    // use 5.0 for a 5.0V ADC reference voltage
-    // 5.015V is the calibrated reference voltage
-    voltage = ((float)sum / (float)NUM_SAMPLES * 5.015) / 1024.0;
-    // send voltage for display on Serial Monitor
-    // voltage multiplied by 11 when using voltage divider that
-    // divides by 11. 11.132 is the calibrated voltage divide
-    // value
-    
-    Serial.print("Voltage:       ");
-    if(voltage == 0)
-      Serial.print(voltage / 0.9059 * 10);
-    else
-      Serial.print(voltage / 0.9059 * 10 + 0.22);
-    
-    Serial.println (" V");
-    sample_count = 0;
-    sum = 0;
-  }
 
-  //If we are measuring current...
-  if(measureCurrent){
-  current_mA = ina219.getCurrent_mA();
+    //If we are measuring current...
+    if (input == "current") {
+      current_mA = ina219.getCurrent_mA();
 
-  Serial.print("Current:       "); Serial.print(current_mA); Serial.println(" mA");
-  Serial.println(" mA");
+      Serial.print("Current:       "); Serial.print(current_mA); Serial.println(" mA");
+      Serial.println(" mA");
+    }
   }
-  delay(2000);
 }
